@@ -27,7 +27,7 @@ def create_app(state: AppState, worker) -> FastAPI:
         return {
             "name": "Depth LCD",
             "description": "Profundidade do veículo e estado do LCD I2C",
-            "icon": "<svg role=\"img\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><path fill=\"#fff\" d=\"M3 12c6-6 12-2 18-1 3 .5 5.8 0 8-2-2.4 4.5-7.4 5.6-12.4 3.8C11 10.8 7.2 9.2 3 14v-2Z\"/><path fill=\"#fff\" d=\"M4 16c5-4.2 9.7-1.4 14.4-.5 2 .4 3.8.3 5.6-.3-2.5 2.4-6 2.7-9.4 1.5C10.4 15.2 7.4 13.9 4 18v-2Z\"/></svg>",
+            "icon": "https://raw.githubusercontent.com/Adalplay/blueos-depth-lcd/main/assets/brs-icon-512.png",
             "company": "BRS",
             "version": "1.0.0",
             "webpage": "/",
