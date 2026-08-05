@@ -4,6 +4,11 @@ Extensão BlueOS que recebe a profundidade calculada pelo ArduSub via MAVLink e
 mostra o valor em um LCD I²C 16x2. A extensão **não acessa o Bar30**; ela acessa
 somente o endereço do LCD.
 
+Desde a versão `0.2.0`, a extensão também disponibiliza uma página no menu do
+BlueOS com profundidade em tempo real, estado do MAVLink, estado do LCD, teste
+do display e edição temporária do texto da primeira linha. Se o LCD estiver
+desconectado, a página continua funcionando e informa o erro encontrado.
+
 ## Hardware
 
 Configuração padrão:
@@ -25,6 +30,7 @@ linhas SDA/SCL da Raspberry Pi. Use um conversor de nível I²C se necessário.
 | `I2C_BUS` | `6` | Número do barramento do LCD |
 | `LCD_ADDRESS` | `0x27` | Endereço I²C do LCD |
 | `LCD_EXPANDER` | `PCF8574` | Modelo do expansor aceito pelo RPLCD |
+| `LCD_TITLE` | `Profundidade:` | Texto inicial da primeira linha do LCD |
 | `UPDATE_INTERVAL` | `0.5` | Intervalo mínimo de atualização em segundos |
 | `STALE_TIMEOUT` | `5` | Tempo para indicar perda de telemetria |
 | `LOG_LEVEL` | `INFO` | Nível de log |
@@ -56,7 +62,7 @@ uma máquina com Docker:
 docker buildx create --name blueos-builder --use
 docker buildx build \
   --platform linux/arm/v7,linux/arm64 \
-  -t adalcirjr/blueos-depth-lcd:0.1.0 \
+  -t adalcirjr/blueos-depth-lcd:0.2.0 \
   --push .
 ```
 
@@ -71,7 +77,7 @@ Se a sua imagem do BlueOS for apenas 64-bit, pode publicar somente
    - Identifier: `adalcirjr.blueos-depth-lcd`
    - Name: `Depth LCD`
    - Docker image: `adalcirjr/blueos-depth-lcd`
-   - Tag: `0.1.0`
+   - Tag: `0.2.0`
 4. Confirme as permissões e instale.
 5. Consulte os logs da extensão.
 

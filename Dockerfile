@@ -16,8 +16,13 @@ RUN apt-get update \
 
 COPY depth_lcd ./depth_lcd
 
-LABEL version="0.1.0"
+EXPOSE 80/tcp
+
+LABEL version="0.2.0"
 LABEL permissions='{\
+  "ExposedPorts": {\
+    "80/tcp": {}\
+  },\
   "HostConfig": {\
     "Devices": [\
       {\
@@ -28,7 +33,14 @@ LABEL permissions='{\
     ],\
     "ExtraHosts": [\
       "host.docker.internal:host-gateway"\
-    ]\
+    ],\
+    "PortBindings": {\
+      "80/tcp": [\
+        {\
+          "HostPort": ""\
+        }\
+      ]\
+    }\
   }\
 }'
 LABEL authors='[{"name":"Adalcir Moreira"}]'
@@ -45,6 +57,7 @@ ENV PYTHONUNBUFFERED=1 \
     I2C_BUS=6 \
     LCD_ADDRESS=0x27 \
     LCD_EXPANDER=PCF8574 \
+    LCD_TITLE=Profundidade: \
     UPDATE_INTERVAL=0.5 \
     STALE_TIMEOUT=5
 
