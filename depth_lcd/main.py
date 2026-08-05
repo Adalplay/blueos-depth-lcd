@@ -1,20 +1,23 @@
 from __future__ import annotations
 
 import logging
+import json
 import os
 import threading
 import time
+from urllib.request import urlopen
 
 import uvicorn
-from pymavlink import mavutil
 
-from .depth import depth_from_message
+from .depth import depth_from_mavlink2rest
 from .lcd import DepthLCD
 from .state import AppState
 from .web import create_app
 
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO").upper()
-MAVLINK_ENDPOINT = os.getenv("MAVLINK_ENDPOINT", "udpout:host.docker.internal:14550")
+MAVLINK2REST_URL = os.getenv(
+    "MAVLINK2REST_URL", "http://host.docker.internal:6040/v1/mavlink"
+)
 DEPTH_SOURCE = os.getenv("DEPTH_SOURCE", "GLOBAL_POSITION_INT").upper()
 I2C_BUS = int(os.getenv("I2C_BUS", "6"), 0)
 LCD_ADDRESS = int(os.getenv("LCD_ADDRESS", "0x27"), 0)
@@ -50,22 +53,15 @@ class DepthWorker:
 
     def run(self) -> None:
         LOGGER.info(
-            "Iniciando: MAVLink=%s, fonte=%s, I2C=%d, LCD=0x%02X",
-            MAVLINK_ENDPOINT,
+            "Iniciando: MAVLink2Rest=%s, fonte=%s, I2C=%d, LCD=0x%02X",
+            MAVLINK2REST_URL,
             DEPTH_SOURCE,
             I2C_BUS,
             LCD_ADDRESS,
         )
-        connection = mavutil.mavlink_connection(
-            MAVLINK_ENDPOINT,
-            source_system=250,
-            source_component=191,
-            autoreconnect=True,
-        )
         lcd: DepthLCD | None = None
         last_lcd_attempt = 0.0
         last_display = 0.0
-        last_heartbeat = 0.0
 
         try:
             while not self.stop_event.is_set():
@@ -81,36 +77,20 @@ class DepthWorker:
                         self.state.set_lcd_status(False, str(error))
                         LOGGER.warning("LCD indisponível: %s", error)
 
-                if now - last_heartbeat >= 1.0:
-                    connection.mav.heartbeat_send(
-                        mavutil.mavlink.MAV_TYPE_ONBOARD_CONTROLLER,
-                        mavutil.mavlink.MAV_AUTOPILOT_INVALID,
-                        0,
-                        0,
-                        mavutil.mavlink.MAV_STATE_ACTIVE,
-                    )
-                    last_heartbeat = now
-
-                message = connection.recv_match(
-                    type=["GLOBAL_POSITION_INT", "LOCAL_POSITION_NED", "VFR_HUD"],
-                    blocking=True,
-                    timeout=0.5,
-                )
-                now = time.monotonic()
-
-                if message is not None:
-                    sample = depth_from_message(message, DEPTH_SOURCE)
-                    if sample is not None:
-                        self.state.update_depth(sample.depth_m, sample.source)
-                        if lcd is not None and now - last_display >= UPDATE_INTERVAL:
-                            try:
-                                lcd.show_depth(sample.depth_m, self.state.snapshot()["title"])
-                                last_display = now
-                            except Exception as error:
-                                LOGGER.warning("Falha ao escrever no LCD: %s", error)
-                                self.state.set_lcd_status(False, str(error))
-                                lcd.close()
-                                lcd = None
+                try:
+                    depth_m, source = self.read_depth()
+                    self.state.update_depth(depth_m, source)
+                    if lcd is not None and now - last_display >= UPDATE_INTERVAL:
+                        try:
+                            lcd.show_depth(depth_m, self.state.snapshot()["title"])
+                            last_display = now
+                        except Exception as error:
+                            LOGGER.warning("Falha ao escrever no LCD: %s", error)
+                            self.state.set_lcd_status(False, str(error))
+                            lcd.close()
+                            lcd = None
+                except Exception as error:
+                    LOGGER.debug("MAVLink2Rest ainda sem dados: %s", error)
 
                 snapshot = self.state.snapshot()
                 if snapshot["age_seconds"] is not None and snapshot["age_seconds"] > STALE_TIMEOUT:
@@ -124,10 +104,18 @@ class DepthWorker:
                         self.state.set_lcd_status(False, str(error))
                         lcd.close()
                         lcd = None
+                self.stop_event.wait(UPDATE_INTERVAL)
         finally:
             if lcd is not None:
                 lcd.close()
-            connection.close()
+
+    def read_depth(self) -> tuple[float, str]:
+        """Lê a árvore do MAVLink2Rest e encontra a mensagem configurada."""
+        with urlopen(MAVLINK2REST_URL, timeout=2) as response:
+            payload = json.load(response)
+
+        sample = depth_from_mavlink2rest(payload, DEPTH_SOURCE)
+        return sample.depth_m, sample.source
 
 
 def run() -> None:

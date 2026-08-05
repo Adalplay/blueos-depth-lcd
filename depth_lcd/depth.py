@@ -31,3 +31,28 @@ def depth_from_message(message, preferred_source: str = "AUTO") -> DepthSample |
 
     return None
 
+
+def depth_from_mavlink2rest(payload: dict, preferred_source: str) -> DepthSample:
+    """Encontra a mensagem desejada na árvore JSON fornecida pelo MAVLink2Rest."""
+    candidates = (
+        [preferred_source]
+        if preferred_source != "AUTO"
+        else ["GLOBAL_POSITION_INT", "VFR_HUD", "LOCAL_POSITION_NED"]
+    )
+    for vehicle in payload.get("vehicles", {}).values():
+        for component in vehicle.get("components", {}).values():
+            messages = component.get("messages", {})
+            for source in candidates:
+                entry = messages.get(source)
+                if not entry:
+                    continue
+                message = entry.get("message", {})
+                if source == "GLOBAL_POSITION_INT":
+                    return DepthSample(
+                        max(0.0, -float(message["relative_alt"]) / 1000.0), source
+                    )
+                if source == "VFR_HUD":
+                    return DepthSample(max(0.0, -float(message["alt"])), source)
+                if source == "LOCAL_POSITION_NED":
+                    return DepthSample(max(0.0, float(message["z"])), source)
+    raise LookupError(f"Mensagem {preferred_source} não encontrada")
