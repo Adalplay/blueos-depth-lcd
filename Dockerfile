@@ -5,20 +5,13 @@ ARG TARGETARCH
 WORKDIR /app
 
 COPY requirements.txt .
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends \
-        build-essential \
-        libxml2-dev \
-        libxslt1-dev \
-    && pip install --no-cache-dir -r requirements.txt \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+RUN pip install --no-cache-dir -r requirements.txt
 
 COPY depth_lcd ./depth_lcd
 
 EXPOSE 80/tcp
 
-LABEL version="0.2.0"
+LABEL version="0.2.1"
 LABEL permissions='{\
   "ExposedPorts": {\
     "80/tcp": {}\
@@ -52,7 +45,7 @@ LABEL readme="https://raw.githubusercontent.com/Adalplay/blueos-depth-lcd/{tag}/
 LABEL links='{"website":"https://github.com/Adalplay/blueos-depth-lcd","support":"https://github.com/Adalplay/blueos-depth-lcd/issues"}'
 
 ENV PYTHONUNBUFFERED=1 \
-    MAVLINK_ENDPOINT=udpout:host.docker.internal:14550 \
+    MAVLINK2REST_URL=http://host.docker.internal:6040/v1/mavlink \
     DEPTH_SOURCE=GLOBAL_POSITION_INT \
     I2C_BUS=6 \
     LCD_ADDRESS=0x27 \

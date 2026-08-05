@@ -25,7 +25,7 @@ linhas SDA/SCL da Raspberry Pi. Use um conversor de nível I²C se necessário.
 
 | Variável | Padrão | Descrição |
 |---|---|---|
-| `MAVLINK_ENDPOINT` | `udpout:host.docker.internal:14550` | Endpoint do MAVLink Router |
+| `MAVLINK2REST_URL` | `http://host.docker.internal:6040/v1/mavlink` | API interna usada pelo Inspector MAVLink |
 | `DEPTH_SOURCE` | `GLOBAL_POSITION_INT` | `AUTO`, `GLOBAL_POSITION_INT`, `LOCAL_POSITION_NED` ou `VFR_HUD` |
 | `I2C_BUS` | `6` | Número do barramento do LCD |
 | `LCD_ADDRESS` | `0x27` | Endereço I²C do LCD |
@@ -62,7 +62,7 @@ uma máquina com Docker:
 docker buildx create --name blueos-builder --use
 docker buildx build \
   --platform linux/arm/v7,linux/arm64 \
-  -t adalcirjr/blueos-depth-lcd:0.2.0 \
+  -t adalcirjr/blueos-depth-lcd:0.2.1 \
   --push .
 ```
 
@@ -77,7 +77,7 @@ Se a sua imagem do BlueOS for apenas 64-bit, pode publicar somente
    - Identifier: `adalcirjr.blueos-depth-lcd`
    - Name: `Depth LCD`
    - Docker image: `adalcirjr/blueos-depth-lcd`
-   - Tag: `0.2.0`
+   - Tag: `0.2.1`
 4. Confirme as permissões e instale.
 5. Consulte os logs da extensão.
 
