@@ -8,28 +8,28 @@
     "extension_logo": "https://raw.githubusercontent.com/Adalplay/blueos-depth-lcd/main/assets/brs-icon-512.png",
     "company_logo": "https://raw.githubusercontent.com/Adalplay/blueos-depth-lcd/main/assets/brs-icon-512.png",
     "versions": {
-      "0.2.5": {
-        "identifier": "6364cd4f-2ca2-4116-9240-1efc3e7abf7e",
+      "0.2.6": {
+        "identifier": "b8af268e-287f-4c22-b3c9-0965b589be52",
         "type": "device-integration",
         "website": "https://github.com/Adalplay/blueos-depth-lcd",
         "images": [
           {
-            "expanded_size": 51270918,
+            "expanded_size": 51270726,
             "platform": {
               "architecture": "arm",
               "variant": "v7",
               "os": "linux"
             },
-            "digest": "sha256:63ff5918a5976a58a9bd999b038745cf1b1c2df244a1d2fc5fb4dbb2ae6fa3fe"
+            "digest": "sha256:4b14823e322a6996b404803d9bbde4bebc7273b8b5a5bbe1f6db33605541a0e6"
           },
           {
-            "expanded_size": 56756229,
+            "expanded_size": 56756066,
             "platform": {
               "architecture": "arm64",
               "variant": null,
               "os": "linux"
             },
-            "digest": "sha256:390dc5e85a16c34a7756eb6510637ebcf3e0a7abf48d94d610ab2a50e3f7fbe2"
+            "digest": "sha256:74f6005764936ca970e8b1b23618328cf6268fc22012bb25339ed81a74d28f77"
           }
         ],
         "authors": [
@@ -47,7 +47,7 @@
         "extra_links": {
           "github": "https://github.com/Adalplay/blueos-depth-lcd"
         },
-        "tag": "0.2.5",
+        "tag": "0.2.6",
         "docs": "https://github.com/Adalplay/blueos-depth-lcd/blob/main/README.md",
         "readme": "https://raw.githubusercontent.com/Adalplay/blueos-depth-lcd/main/README.md",
         "support": "https://github.com/Adalplay/blueos-depth-lcd/issues",
