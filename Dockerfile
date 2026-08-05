@@ -8,10 +8,11 @@ COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY depth_lcd ./depth_lcd
+COPY assets/brs-icon-512.png ./assets/brs-icon.png
 
 EXPOSE 80/tcp
 
-LABEL version="0.2.1"
+LABEL version="0.2.2"
 LABEL permissions='{\
   "ExposedPorts": {\
     "80/tcp": {}\
@@ -37,7 +38,7 @@ LABEL permissions='{\
   }\
 }'
 LABEL authors='[{"name":"Adalcir Moreira"}]'
-LABEL company='{"about":"","name":"Adalcir Moreira","email":""}'
+LABEL company='{"about":"","name":"BRS","email":""}'
 LABEL type="device-integration"
 LABEL tags='["display","depth","mavlink","i2c"]'
 LABEL requirements="core >= 1.1"
