@@ -20,8 +20,8 @@ class DepthLCD:
         )
         self.show_lines("Depth LCD", "Aguardando...")
 
-    def show_depth(self, depth_m: float, _source: str) -> None:
-        self.show_lines("Profundidade:", f"{depth_m:.2f} metros")
+    def show_depth(self, depth_m: float, title: str = "Profundidade:") -> None:
+        self.show_lines(title, f"{depth_m:.2f} metros")
 
     def show_lines(self, first: str, second: str) -> None:
         for row, text in enumerate((first, second)):
