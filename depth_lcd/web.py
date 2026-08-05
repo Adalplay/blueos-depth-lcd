@@ -27,7 +27,7 @@ def create_app(state: AppState, worker) -> FastAPI:
         return {
             "name": "Depth LCD",
             "description": "Profundidade do veículo e estado do LCD I2C",
-            "icon": "<svg role=\"img\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path fill=\"currentColor\" d=\"M2 5.8c4.5-3.3 9-.5 13.5.1 2.5.4 4.8.2 6.5-1.1-2.1 2.8-5.8 3.4-9.4 2.5C8.3 6.2 5.4 4.6 2 7.2V5.8Z\"/><text x=\"2\" y=\"20\" fill=\"currentColor\" font-family=\"Arial,sans-serif\" font-size=\"12\" font-weight=\"900\">BRS</text></svg>",
+            "icon": "<svg role=\"img\" viewBox=\"0 0 32 32\" xmlns=\"http://www.w3.org/2000/svg\"><path fill=\"#fff\" d=\"M3 12c6-6 12-2 18-1 3 .5 5.8 0 8-2-2.4 4.5-7.4 5.6-12.4 3.8C11 10.8 7.2 9.2 3 14v-2Z\"/><path fill=\"#fff\" d=\"M4 16c5-4.2 9.7-1.4 14.4-.5 2 .4 3.8.3 5.6-.3-2.5 2.4-6 2.7-9.4 1.5C10.4 15.2 7.4 13.9 4 18v-2Z\"/></svg>",
             "company": "BRS",
             "version": "1.0.0",
             "webpage": "/",
@@ -75,7 +75,8 @@ PAGE = """<!doctype html>
     body { margin: 0; background: #101820; color: #eef6fa; }
     main { max-width: 720px; margin: auto; padding: 28px 18px; }
     .brand { display: flex; align-items: center; gap: 14px; }
-    .brand img { width: 72px; height: 72px; border-radius: 12px; }
+    .brand img { width: 72px; height: 72px; border-radius: 12px; object-fit: contain;
+                 box-sizing: border-box; padding: 3px; background: #102733; }
     h1 { font-size: 24px; font-weight: 500; }
     .card { background: #172630; border: 1px solid #294451; border-radius: 12px;
             padding: 24px; margin: 16px 0; }
