@@ -62,7 +62,7 @@ uma máquina com Docker:
 docker buildx create --name blueos-builder --use
 docker buildx build \
   --platform linux/arm/v7,linux/arm64 \
-  -t adalcirjr/blueos-depth-lcd:0.2.2 \
+  -t adalcirjr/blueos-depth-lcd:0.2.3 \
   --push .
 ```
 
@@ -77,7 +77,7 @@ Se a sua imagem do BlueOS for apenas 64-bit, pode publicar somente
    - Identifier: `adalcirjr.blueos-depth-lcd`
    - Name: `Depth LCD`
    - Docker image: `adalcirjr/blueos-depth-lcd`
-   - Tag: `0.2.2`
+   - Tag: `0.2.3`
 4. Confirme as permissões e instale.
 5. Consulte os logs da extensão.
 
