@@ -12,7 +12,7 @@ COPY assets/brs-icon-512.png ./assets/brs-icon.png
 
 EXPOSE 80/tcp
 
-LABEL version="0.2.4"
+LABEL version="0.2.5"
 LABEL permissions='{\
   "ExposedPorts": {\
     "80/tcp": {}\
