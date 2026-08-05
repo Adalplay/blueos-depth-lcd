@@ -3,7 +3,7 @@ from __future__ import annotations
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI, HTTPException
-from fastapi.responses import HTMLResponse
+from fastapi.responses import FileResponse, HTMLResponse
 from pydantic import BaseModel
 
 from .state import AppState
@@ -27,8 +27,8 @@ def create_app(state: AppState, worker) -> FastAPI:
         return {
             "name": "Depth LCD",
             "description": "Profundidade do veículo e estado do LCD I2C",
-            "icon": "mdi-waves-arrow-up",
-            "company": "Adalplay",
+            "icon": "<svg role=\"img\" viewBox=\"0 0 24 24\" xmlns=\"http://www.w3.org/2000/svg\"><path fill=\"currentColor\" d=\"M2 5.8c4.5-3.3 9-.5 13.5.1 2.5.4 4.8.2 6.5-1.1-2.1 2.8-5.8 3.4-9.4 2.5C8.3 6.2 5.4 4.6 2 7.2V5.8Z\"/><text x=\"2\" y=\"20\" fill=\"currentColor\" font-family=\"Arial,sans-serif\" font-size=\"12\" font-weight=\"900\">BRS</text></svg>",
+            "company": "BRS",
             "version": "1.0.0",
             "webpage": "/",
             "api": "/docs",
@@ -57,6 +57,10 @@ def create_app(state: AppState, worker) -> FastAPI:
     def index() -> str:
         return PAGE
 
+    @app.get("/assets/brs-icon.png", response_class=FileResponse)
+    def brs_icon() -> str:
+        return "/app/assets/brs-icon.png"
+
     return app
 
 
@@ -70,6 +74,8 @@ PAGE = """<!doctype html>
     :root { color-scheme: dark; font-family: Arial, sans-serif; }
     body { margin: 0; background: #101820; color: #eef6fa; }
     main { max-width: 720px; margin: auto; padding: 28px 18px; }
+    .brand { display: flex; align-items: center; gap: 14px; }
+    .brand img { width: 72px; height: 72px; border-radius: 12px; }
     h1 { font-size: 24px; font-weight: 500; }
     .card { background: #172630; border: 1px solid #294451; border-radius: 12px;
             padding: 24px; margin: 16px 0; }
@@ -87,7 +93,7 @@ PAGE = """<!doctype html>
   </style>
 </head>
 <body><main>
-  <h1>Depth LCD</h1>
+  <header class="brand"><img src="assets/brs-icon.png" alt="Logo BRS"><div><h1>Depth LCD</h1><div class="label">BRS</div></div></header>
   <section class="card">
     <div class="label">Profundidade atual</div>
     <div id="depth" class="depth">--.-- metros</div>
@@ -143,4 +149,3 @@ document.querySelector('#test').addEventListener('click', async () => {
 refresh(); setInterval(refresh, 500);
 </script>
 </main></body></html>"""
-
