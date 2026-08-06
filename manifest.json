@@ -1,35 +1,35 @@
 [
   {
     "identifier": "adalcirjr.blueos-depth-lcd",
-    "name": "Depth LCD",
+    "name": "Depth Display",
     "website": "https://github.com/Adalplay/blueos-depth-lcd",
     "docker": "adalcirjr/blueos-depth-lcd",
-    "description": "Exibe a profundidade do ArduSub em uma página BlueOS e em um LCD I2C 16x2.",
+    "description": "Exibe a profundidade do ArduSub na página BlueOS e permite selecionar LCD 16x2 ou HT16K33 I2C.",
     "extension_logo": "https://raw.githubusercontent.com/Adalplay/blueos-depth-lcd/main/assets/brs-icon-512.png",
     "company_logo": "https://raw.githubusercontent.com/Adalplay/blueos-depth-lcd/main/assets/brs-icon-512.png",
     "versions": {
-      "0.2.6": {
-        "identifier": "b8af268e-287f-4c22-b3c9-0965b589be52",
+      "0.3.0": {
+        "identifier": "a9331840-aa29-414c-bf4b-f419e3c5810f",
         "type": "device-integration",
         "website": "https://github.com/Adalplay/blueos-depth-lcd",
         "images": [
           {
-            "expanded_size": 51270726,
+            "expanded_size": 51271951,
             "platform": {
               "architecture": "arm",
               "variant": "v7",
               "os": "linux"
             },
-            "digest": "sha256:4b14823e322a6996b404803d9bbde4bebc7273b8b5a5bbe1f6db33605541a0e6"
+            "digest": "sha256:78693d339e959e1c0834c606803b5abbafc6f1fd1c0e0dc68ffb01155adf5724"
           },
           {
-            "expanded_size": 56756066,
+            "expanded_size": 56757385,
             "platform": {
               "architecture": "arm64",
               "variant": null,
               "os": "linux"
             },
-            "digest": "sha256:74f6005764936ca970e8b1b23618328cf6268fc22012bb25339ed81a74d28f77"
+            "digest": "sha256:1876e79a4be0cf843f63fa662ea2bd30b0b8bbf207818d9853f446f9157b6972"
           }
         ],
         "authors": [
@@ -47,7 +47,7 @@
         "extra_links": {
           "github": "https://github.com/Adalplay/blueos-depth-lcd"
         },
-        "tag": "0.2.6",
+        "tag": "0.3.0",
         "docs": "https://github.com/Adalplay/blueos-depth-lcd/blob/main/README.md",
         "readme": "https://raw.githubusercontent.com/Adalplay/blueos-depth-lcd/main/README.md",
         "support": "https://github.com/Adalplay/blueos-depth-lcd/issues",
