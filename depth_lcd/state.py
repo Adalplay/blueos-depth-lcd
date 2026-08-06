@@ -7,14 +7,15 @@ import time
 class AppState:
     """Estado compartilhado com segurança entre MAVLink e servidor web."""
 
-    def __init__(self, title: str) -> None:
+    def __init__(self, title: str, display_type: str = "LCD") -> None:
         self._lock = threading.Lock()
         self.depth_m: float | None = None
         self.source: str | None = None
         self.last_update: float | None = None
         self.mavlink_connected = False
-        self.lcd_connected = False
-        self.lcd_error: str | None = None
+        self.display_connected = False
+        self.display_error: str | None = None
+        self.display_type = display_type
         self.title = title[:16]
         self.test_requested = False
 
@@ -29,10 +30,10 @@ class AppState:
         with self._lock:
             self.mavlink_connected = False
 
-    def set_lcd_status(self, connected: bool, error: str | None = None) -> None:
+    def set_display_status(self, connected: bool, error: str | None = None) -> None:
         with self._lock:
-            self.lcd_connected = connected
-            self.lcd_error = error
+            self.display_connected = connected
+            self.display_error = error
 
     def set_title(self, title: str) -> None:
         with self._lock:
@@ -57,8 +58,8 @@ class AppState:
                 "last_update": self.last_update,
                 "age_seconds": age,
                 "mavlink_connected": self.mavlink_connected,
-                "lcd_connected": self.lcd_connected,
-                "lcd_error": self.lcd_error,
+                "display_connected": self.display_connected,
+                "display_error": self.display_error,
+                "display_type": self.display_type,
                 "title": self.title,
             }
-

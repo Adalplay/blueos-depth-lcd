@@ -20,16 +20,16 @@ def create_app(state: AppState, worker) -> FastAPI:
         yield
         worker.stop()
 
-    app = FastAPI(title="Depth LCD", version="1.0.0", lifespan=lifespan)
+    app = FastAPI(title="Depth Display", version="0.3.0", lifespan=lifespan)
 
     @app.get("/register_service")
     def register_service() -> dict:
         return {
-            "name": "Depth LCD",
-            "description": "Profundidade do veículo e estado do LCD I2C",
+            "name": "Depth Display",
+            "description": "Profundidade do veículo em LCD ou HT16K33 I2C",
             "icon": "https://raw.githubusercontent.com/Adalplay/blueos-depth-lcd/main/assets/brs-sidebar-white-v2.png",
             "company": "BRS",
-            "version": "1.0.0",
+            "version": "0.3.0",
             "webpage": "/",
             "api": "/docs",
             "new_page": False,
@@ -48,7 +48,7 @@ def create_app(state: AppState, worker) -> FastAPI:
         state.set_title(title)
         return {"ok": True, "title": title}
 
-    @app.post("/api/lcd/test")
+    @app.post("/api/display/test")
     def test_lcd() -> dict:
         state.request_test()
         return {"ok": True}
@@ -69,7 +69,7 @@ PAGE = """<!doctype html>
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Depth LCD</title>
+  <title>Depth Display</title>
   <style>
     :root { color-scheme: dark; font-family: Arial, sans-serif; }
     body { margin: 0; background: #101820; color: #eef6fa; }
@@ -94,25 +94,27 @@ PAGE = """<!doctype html>
   </style>
 </head>
 <body><main>
-  <header class="brand"><img src="assets/brs-icon.png" alt="Logo BRS"><div><h1>Depth LCD</h1><div class="label">BRS</div></div></header>
+  <header class="brand"><img src="assets/brs-icon.png" alt="Logo BRS"><div><h1>Depth Display</h1><div class="label">BRS</div></div></header>
   <section class="card">
     <div class="label">Profundidade atual</div>
     <div id="depth" class="depth">--.-- metros</div>
     <div class="grid">
       <div class="status">MAVLink<br><strong id="mavlink" class="wait">Aguardando</strong></div>
-      <div class="status">LCD<br><strong id="lcd" class="wait">Aguardando</strong></div>
+      <div class="status"><span id="display-name">Display</span><br><strong id="display" class="wait">Aguardando</strong></div>
       <div class="status">Fonte<br><strong id="source">--</strong></div>
       <div class="status">Última leitura<br><strong id="age">--</strong></div>
     </div>
-    <p id="lcd-error" class="bad"></p>
+    <p id="display-error" class="bad"></p>
   </section>
   <section class="card">
-    <div class="label">Texto da primeira linha do LCD (máximo 16 caracteres)</div>
-    <form id="title-form">
-      <input id="title" maxlength="16" required>
-      <button type="submit">Salvar texto</button>
-      <button type="button" id="test">Testar LCD</button>
-    </form>
+    <div id="lcd-settings">
+      <div class="label">Texto da primeira linha do LCD (máximo 16 caracteres)</div>
+      <form id="title-form">
+        <input id="title" maxlength="16" required>
+        <button type="submit">Salvar texto</button>
+      </form>
+    </div>
+    <button type="button" id="test">Testar display</button>
     <div id="message"></div>
   </section>
 <script>
@@ -124,10 +126,12 @@ async function refresh() {
     const data = await response.json();
     document.querySelector('#depth').textContent = data.depth_m == null ? '--.-- metros' : `${data.depth_m.toFixed(2)} metros`;
     setStatus('#mavlink', data.mavlink_connected, 'Conectado', 'Sem dados');
-    setStatus('#lcd', data.lcd_connected, 'Conectado', 'Desconectado');
+    document.querySelector('#display-name').textContent = data.display_type || 'Display';
+    setStatus('#display', data.display_connected, 'Conectado', 'Desconectado');
     document.querySelector('#source').textContent = data.source || '--';
     document.querySelector('#age').textContent = data.age_seconds == null ? '--' : `${data.age_seconds.toFixed(1)} s`;
-    document.querySelector('#lcd-error').textContent = data.lcd_error || '';
+    document.querySelector('#display-error').textContent = data.display_error || '';
+    document.querySelector('#lcd-settings').style.display = data.display_type === 'LCD' ? '' : 'none';
     if (!titleLoaded) { document.querySelector('#title').value = data.title; titleLoaded = true; }
   } catch (_) { setStatus('#mavlink', false, '', 'Página sem comunicação'); }
 }
@@ -144,7 +148,7 @@ document.querySelector('#title-form').addEventListener('submit', async event => 
   document.querySelector('#message').textContent = response.ok ? 'Texto atualizado.' : (result.detail || 'Erro ao atualizar.');
 });
 document.querySelector('#test').addEventListener('click', async () => {
-  await fetch(relative('api/lcd/test'), {method:'POST'});
+  await fetch(relative('api/display/test'), {method:'POST'});
   document.querySelector('#message').textContent = 'Teste solicitado.';
 });
 refresh(); setInterval(refresh, 500);
