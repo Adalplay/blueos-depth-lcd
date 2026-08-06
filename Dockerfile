@@ -12,7 +12,7 @@ COPY assets/brs-icon-512.png ./assets/brs-icon.png
 
 EXPOSE 80/tcp
 
-LABEL version="0.2.6"
+LABEL version="0.3.0"
 LABEL permissions='{\
   "ExposedPorts": {\
     "80/tcp": {}\
@@ -48,10 +48,13 @@ LABEL links='{"website":"https://github.com/Adalplay/blueos-depth-lcd","support"
 ENV PYTHONUNBUFFERED=1 \
     MAVLINK2REST_URL=http://host.docker.internal:6040/v1/mavlink \
     DEPTH_SOURCE=GLOBAL_POSITION_INT \
+    DISPLAY_TYPE=LCD \
     I2C_BUS=6 \
     LCD_ADDRESS=0x27 \
     LCD_EXPANDER=PCF8574 \
     LCD_TITLE=Profundidade: \
+    HT16K33_ADDRESS=0x70 \
+    HT16K33_BRIGHTNESS=8 \
     UPDATE_INTERVAL=0.5 \
     STALE_TIMEOUT=5
 

@@ -1,112 +1,128 @@
-# BlueOS Depth LCD
+# BlueOS Depth Display
 
 Extensão BlueOS que recebe a profundidade calculada pelo ArduSub via MAVLink e
-mostra o valor em um LCD I²C 16x2. A extensão **não acessa o Bar30**; ela acessa
-somente o endereço do LCD.
+permite escolher entre dois displays I2C:
 
-Desde a versão `0.2.0`, a extensão também disponibiliza uma página no menu do
-BlueOS com profundidade em tempo real, estado do MAVLink, estado do LCD, teste
-do display e edição temporária do texto da primeira linha. Se o LCD estiver
-desconectado, a página continua funcionando e informa o erro encontrado.
+- LCD 16x2 com expansor PCF8574;
+- display de sete segmentos, quatro dígitos, com controlador HT16K33.
 
-## Hardware
+A extensão não lê diretamente o Bar30. O controlador principal continua
+responsável pelo sensor, e a extensão consulta a profundidade pelo MAVLink2Rest.
 
-Configuração padrão:
+## Seleção do display
 
-- LCD: PCF8574, endereço `0x27`
-- Barramento: `/dev/i2c-6` da Navigator
-- Display: 16 colunas por 2 linhas
+Use a variável `DISPLAY_TYPE` nos Custom Settings:
 
-O Bar30 (`0x76`) e o LCD (`0x27` ou `0x3F`) podem compartilhar SDA/SCL por
-terem endereços diferentes. Confirme que o backpack do LCD não aplica 5 V às
-linhas SDA/SCL da Raspberry Pi. Use um conversor de nível I²C se necessário.
+```text
+DISPLAY_TYPE=LCD
+```
 
-## Configuração
+ou:
+
+```text
+DISPLAY_TYPE=HT16K33
+```
+
+A seleção é feita quando a extensão inicia. Depois de alterar a variável,
+reinicie a extensão.
+
+## Formato do HT16K33
+
+O HT16K33 mostra quatro algarismos e o ponto decimal não ocupa um dígito. A
+profundidade é apresentada no formato `00.00`, por exemplo:
+
+| Profundidade | Display |
+|---:|:---|
+| 0,00 m | `00.00` |
+| 2,35 m | `02.35` |
+| 12,34 m | `12.34` |
+| 99,99 m | `99.99` |
+| Sem valor válido ou fora da faixa | `----` |
+
+A faixa suportada pelo display é de `0,00` a `99,99` metros. A página web
+continua mostrando o valor completo recebido pelo MAVLink.
+
+## Configurações
 
 | Variável | Padrão | Descrição |
 |---|---|---|
-| `MAVLINK2REST_URL` | `http://host.docker.internal:6040/v1/mavlink` | API interna usada pelo Inspector MAVLink |
-| `DEPTH_SOURCE` | `GLOBAL_POSITION_INT` | `AUTO`, `GLOBAL_POSITION_INT`, `LOCAL_POSITION_NED` ou `VFR_HUD` |
-| `I2C_BUS` | `6` | Número do barramento do LCD |
-| `LCD_ADDRESS` | `0x27` | Endereço I²C do LCD |
-| `LCD_EXPANDER` | `PCF8574` | Modelo do expansor aceito pelo RPLCD |
-| `LCD_TITLE` | `Profundidade:` | Texto inicial da primeira linha do LCD |
-| `UPDATE_INTERVAL` | `0.5` | Intervalo mínimo de atualização em segundos |
-| `STALE_TIMEOUT` | `5` | Tempo para indicar perda de telemetria |
-| `LOG_LEVEL` | `INFO` | Nível de log |
+| `DISPLAY_TYPE` | `LCD` | Tipo do display: `LCD` ou `HT16K33` |
+| `MAVLINK2REST_URL` | `http://host.docker.internal:6040/v1/mavlink` | API interna do MAVLink |
+| `DEPTH_SOURCE` | `GLOBAL_POSITION_INT` | Fonte da profundidade |
+| `I2C_BUS` | `6` | Barramento I2C da Navigator |
+| `LCD_ADDRESS` | `0x27` | Endereço do LCD 16x2 |
+| `LCD_EXPANDER` | `PCF8574` | Modelo do expansor do LCD |
+| `LCD_TITLE` | `Profundidade:` | Primeira linha do LCD |
+| `HT16K33_ADDRESS` | `0x70` | Endereço do HT16K33 |
+| `HT16K33_BRIGHTNESS` | `8` | Brilho de `0` a `15` |
+| `UPDATE_INTERVAL` | `0.5` | Intervalo de atualização em segundos |
+| `STALE_TIMEOUT` | `5` | Tempo para indicar perda da telemetria |
+| `DISPLAY_RETRY_INTERVAL` | `5` | Intervalo entre tentativas de conexão |
+| `LOG_LEVEL` | `INFO` | Nível dos logs |
 
-No modo `AUTO`, a extensão aceita:
+## Custom Settings para LCD
 
-1. `GLOBAL_POSITION_INT.relative_alt`, em milímetros e positivo para cima;
-2. `LOCAL_POSITION_NED.z`, em metros e positivo para baixo;
-3. `VFR_HUD.alt`, em metros e negativo abaixo da superfície.
+```text
+DISPLAY_TYPE=LCD
+I2C_BUS=6
+LCD_ADDRESS=0x27
+LCD_EXPANDER=PCF8574
+LCD_TITLE=Profundidade:
+DEPTH_SOURCE=GLOBAL_POSITION_INT
+```
 
-Como mais de uma dessas mensagens pode estar disponível, o padrão fixa
-`GLOBAL_POSITION_INT` para evitar alternância entre estimativas. Se ela não
-estiver presente na sua configuração, selecione uma das outras fontes.
+## Custom Settings para HT16K33
 
-## Teste local
+```text
+DISPLAY_TYPE=HT16K33
+I2C_BUS=6
+HT16K33_ADDRESS=0x70
+HT16K33_BRIGHTNESS=8
+DEPTH_SOURCE=GLOBAL_POSITION_INT
+```
 
-Os testes de conversão não precisam de hardware:
+## Ligações do HT16K33
+
+O módulo normalmente possui `VCC`, `GND`, `SDA` e `SCL`. Confirme na
+documentação do módulo a tensão de alimentação e os níveis lógicos aceitos
+antes de conectá-lo à Navigator. Não presuma que todo módulo HT16K33 tenha o
+mesmo circuito de alimentação ou conversão de nível.
+
+O endereço padrão costuma ser `0x70`, mas pode variar se as pontes de endereço
+do módulo tiverem sido alteradas.
+
+## Página web
+
+A página da extensão informa:
+
+- profundidade atual;
+- conexão MAVLink;
+- tipo e estado do display selecionado;
+- fonte MAVLink;
+- erro de comunicação I2C;
+- botão de teste do display.
+
+A edição do texto da primeira linha aparece somente quando `DISPLAY_TYPE=LCD`,
+pois o HT16K33 mostra apenas números e sinais simples.
+
+## Testes
+
+Os testes não precisam de display físico:
 
 ```sh
 python -m unittest discover -s tests -v
 ```
 
-## Build e publicação
+## Build
 
-O BlueOS instala extensões a partir de uma imagem em um registry. Execute em
-uma máquina com Docker:
+A nova linha de desenvolvimento começa na versão `0.3.0`:
 
 ```sh
-docker buildx create --name blueos-builder --use
 docker buildx build \
   --platform linux/arm/v7,linux/arm64 \
-  -t adalcirjr/blueos-depth-lcd:0.2.6 \
+  -t adalcirjr/blueos-depth-lcd:0.3.0 \
   --push .
 ```
 
-Se a sua imagem do BlueOS for apenas 64-bit, pode publicar somente
-`linux/arm64`.
-
-## Instalação no BlueOS
-
-1. Abra **Extensions > Installed**.
-2. Clique no botão `+`.
-3. Use:
-   - Identifier: `adalcirjr.blueos-depth-lcd`
-   - Name: `Depth LCD`
-   - Docker image: `adalcirjr/blueos-depth-lcd`
-   - Tag: `0.2.6`
-4. Confirme as permissões e instale.
-5. Consulte os logs da extensão.
-
-### LCD em outro barramento
-
-O `Dockerfile` concede acesso a `/dev/i2c-6`. Para usar, por exemplo,
-`/dev/i2c-1`, altere **as duas ocorrências** do dispositivo nas permissões:
-
-```json
-{
-  "HostConfig": {
-    "Devices": [
-      {
-        "PathOnHost": "/dev/i2c-1",
-        "PathInContainer": "/dev/i2c-1",
-        "CgroupPermissions": "rwm"
-      }
-    ],
-    "ExtraHosts": ["host.docker.internal:host-gateway"]
-  }
-}
-```
-
-Defina também `I2C_BUS=1`.
-
-## Diagnóstico
-
-- `No such file or directory`: o barramento configurado não existe no host.
-- `Remote I/O error`: endereço incorreto, ligação elétrica ou alimentação.
-- `Sem telemetria`: confirme o endpoint MAVLink e observe as mensagens no
-  MAVLink Inspector do BlueOS.
-- Profundidade sempre zero: selecione explicitamente outra `DEPTH_SOURCE`.
+O `manifest.json` deve receber os digests ARMv7 e ARM64 somente depois que a
+imagem `0.3.0` tiver sido publicada no Docker Hub.
